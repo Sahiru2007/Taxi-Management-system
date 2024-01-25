@@ -84,13 +84,37 @@
     margin-top: 5px;
     background-color: #F3F3F3;
 }
-
+.login-container .type{
+    width: calc(100% - 22px);
+    padding: 12px;
+    height: 60px;
+    box-sizing: border-box;
+    border: 1px solid #B2B2B2;
+    border-radius: 5px;
+    margin-top: 5px;
+    background-color: #F3F3F3;
+}
+.login-container input:focus {
+    border: 2px solid orange;
+    outline: none;
+  }
+  .login-container .type:focus {
+    border: 2px solid orange;
+    outline: none;
+  }
 .login-container .submit-container {
     width: 100%;
     display: flex;
     flex-direction: column; /* Stack the buttons vertically */
 }
+.error{
+    color: red;
 
+    margin-bottom: 5%;
+}
+.login-container .new-account-container{
+    text-align: center;
+}
 .login-container .mainbtn,
 .login-container .subbtn,
 .login-container .browsebtn {

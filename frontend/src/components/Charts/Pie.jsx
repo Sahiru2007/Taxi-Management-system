@@ -1,23 +1,33 @@
 import React from 'react';
-import { AccumulationChartComponent, AccumulationSeriesCollectionDirective, AccumulationSeriesDirective, AccumulationLegend, PieSeries, AccumulationDataLabel, Inject, AccumulationTooltip } from '@syncfusion/ej2-react-charts';
+import {
+  AccumulationChartComponent,
+  AccumulationSeriesCollectionDirective,
+  AccumulationSeriesDirective,
+  AccumulationLegend,
+  PieSeries,
+  AccumulationDataLabel,
+  Inject,
+  AccumulationTooltip
+} from '@syncfusion/ej2-react-charts';
 
 import { useStateContext } from '../../contexts/ContextProvider';
 
-const Doughnut = ({ id, data, legendVisiblity, height }) => {
+const Doughnut = ({ id, data, legendVisiblity, height, name, ref }) => {
   const { currentMode } = useStateContext();
 
   return (
     <AccumulationChartComponent
       id={id}
-      legendSettings={{ visible: legendVisiblity, background: 'white' }}
+      legendSettings={{ textStyle: { color: currentMode === 'Dark' ? '#fff' : '#333', fontFamily: 'Poppins, sans-serif', size: '18px' }} }
       height={height}
+      ref={ref}
       background={currentMode === 'Dark' ? '#33373E' : '#fff'}
       tooltip={{ enable: true }}
     >
       <Inject services={[AccumulationLegend, PieSeries, AccumulationDataLabel, AccumulationTooltip]} />
       <AccumulationSeriesCollectionDirective>
         <AccumulationSeriesDirective
-          name="Sale"
+          name={name}
           dataSource={data}
           xName="x"
           yName="y"
@@ -33,8 +43,9 @@ const Doughnut = ({ id, data, legendVisiblity, height }) => {
             name: 'text',
             position: 'Inside',
             font: {
+              fontFamily: 'Poppins, sans-serif', // Set font family to Poppins
               fontWeight: '600',
-              color: '#fff',
+              color: currentMode === 'Dark' ? '#fff' : '#333', // Adjust text color based on mode
             },
           }}
         />
