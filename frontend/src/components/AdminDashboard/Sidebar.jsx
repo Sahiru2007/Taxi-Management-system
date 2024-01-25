@@ -6,9 +6,10 @@ import { TooltipComponent } from '@syncfusion/ej2-react-popups';
 import { FiShoppingBag } from 'react-icons/fi';
 import { SlCalender } from 'react-icons/sl';
 import { IoMdContacts } from 'react-icons/io';
+import { CiMoneyBill } from "react-icons/ci";
 import { RiContactsLine } from 'react-icons/ri';
 import { CiLocationOn } from 'react-icons/ci';
-
+import { TbReportSearch } from "react-icons/tb";
 import { useStateContext } from '../../contexts/ContextProvider';
 import arrow from '../../data/navigation.png';
 
@@ -26,16 +27,24 @@ const links = [
     title: 'Operations',
     links: [
       {
-        name: 'reservations',
+        name: 'guest reservations',
         icon: <SlCalender />,
       },
       {
-        name: 'drivers',
+        name: 'Reservations',
+        icon: <SlCalender />,
+      },
+      {
+        name: 'Drivers',
         icon: <IoMdContacts />,
       },
       {
-        name: 'Users',
+        name: 'Passengers',
         icon: <RiContactsLine />,
+      },
+      {
+        name: 'Payments',
+        icon: <CiMoneyBill />,
       },
       
       {
@@ -43,8 +52,8 @@ const links = [
         icon: <CiLocationOn />,
       },
       {
-        name: 'Feedback',
-        icon: <CiLocationOn />,
+        name: 'reports',
+        icon: <TbReportSearch />,
       },
     ],
   },
