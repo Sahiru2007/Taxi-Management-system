@@ -654,7 +654,7 @@ export const earningData = [
     icon: <CiCirclePlus />,
     amount: '39,354',
     percentage: '-12%',
-    title: "Today's reservations",
+    title: 'New Passengers',
     iconColor: 'rgb(0, 194, 146)',
     iconBg: 'rgb(235, 250, 242)',
     pcColor: 'red-600',

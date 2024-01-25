@@ -140,139 +140,14 @@ const Reservation= () => {
   const { currentColor } = useStateContext();
   const [userLocation, setUserLocation] = useState(null);
   const [searchText, setSearchText] = useState('');
-  const [searchTextRequest, setSearchTextRequest] = useState('');
   const [sortedData, setSortedData] = useState(dummyReservations);
-  const [requests, setRequests] = useState([]);
-  const [error, setError] = useState(null);
-  const [driverId, setDriverId] = useState(null);
   const [sortOrder, setSortOrder] = useState({
     column: null,
     ascending: true,
   });
-  const [reservations, setReservations] = useState([]);
-  const handleAccept = async (reservationId) => {
-    try {
-        const response = await fetch(`http://localhost:8080/api/reservationRequests/changeStatus/${reservationId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                status: 'OnGoing',
-            }),
-        });
-
-        if (response.ok) {
-            console.log("Reservation status updated successfully");
-
-            // Remove the accepted reservation from the state
-            setRequests((prevRequests) => prevRequests.filter(request => request._id !== reservationId));
-        } else {
-            const errorData = await response.json();
-            setError(errorData.message);
-            console.error('Failed to update reservation status:', errorData.message);
-        }
-    } catch (error) {
-        setError('Error updating reservation status');
-        console.error('Error updating reservation status:', error.message);
-    }
-};
-  const handleDecline = async (reservationId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/reservationRequests/changeStatus/${reservationId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'Declined',
-        }),
-      });
-  
-      if (response.ok) {
-        console.log("Reservation status updated successfully");
-  
-        // Remove the accepted reservation from the state
-        setRequests((prevRequests) => prevRequests.filter(request => request._id !== reservationId));
-      } else {
-        console.error('Failed to update reservation status:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error updating reservation status:', error.message);
-    }
-  };
-  
   
   useEffect(() => {
-    
-    const storedUserData = localStorage.getItem('userData');
-    //get reservation requests
-    if (storedUserData) {
-      try {
-        const parsedUserData = JSON.parse(storedUserData);
-        setDriverId(parsedUserData._id);
-    
-        const userId = parsedUserData._id;
-    
-        // Make an API request to get reservation requests for the driver
-        fetch(`http://localhost:8080/api/reservationRequests/${userId}`)
-          .then(async (response) => {
-            if (!response.ok) {
-              throw new Error(`Request failed with status ${response.status}`);
-            }
-    
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-              throw new Error('Invalid response format');
-            }
-    
-            const requestData = await response.json();
-            setRequests(requestData);
-            
-          })
-          .catch(error => {
-            console.error('Error fetching requests:', error.message);
-          });
-      } catch (parseError) {
-        console.error('Error parsing user data:', parseError);
-      }
-
-      //get reservation data
-      if (storedUserData) {
-        try {
-          const parsedUserData = JSON.parse(storedUserData);
-          setDriverId(parsedUserData._id);
-      
-          const driverId = parsedUserData._id;
-      
-          // Make an API request to get reservation requests for the driver
-          fetch(`http://localhost:8080/api/reservation/reservationData/${driverId}`)
-            .then(async (response) => {
-              if (!response.ok) {
-                throw new Error(`Request failed with status ${response.status}`);
-              }
-      
-              const contentType = response.headers.get('content-type');
-              if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Invalid response format');
-              }
-      
-              const reservationData = await response.json();
-              setReservations(reservationData);
-              
-            })
-            .catch(error => {
-              console.error('Error fetching requests:', error.message);
-            });
-        } catch (parseError) {
-          console.error('Error parsing user data:', parseError);
-        }
-     
-    }
-  }
-
-
-    
+    // You can fetch or update data here
   }, []);  // Add dependencies if needed
   
   const sortStringColumn = (columnName, isAscending) => {
@@ -325,31 +200,12 @@ const Reservation= () => {
   const handleSearch = (e) => {
     setSearchText(e.target.value);
   };
-  const handleSearchRequest = (e) => {
-    setSearchTextRequest(e.target.value);
-  };
 
-
-  const filterDataRequests = () => {
-    return requests.filter((item) =>
-      Object.values(item).some(
-        (value) => String(value).toLowerCase().includes(searchTextRequest.toLowerCase())
-      )
-    );
-  };
-  const filterDataReservations = () => {
-    return reservations.filter((item) =>
-      Object.values(item).some(
-        (value) => String(value).toLowerCase().includes(searchText.toLowerCase())
-      )
-    );
-  };
-
-  // Filtered data for reservation requests
-  const filteredRequests = filterDataRequests();
-
-  // Filtered data for reservations
-  const filteredReservations = filterDataReservations();
+  const filteredData = sortedData.filter((reservation) =>
+    Object.values(reservation).some((value) =>
+      String(value).toLowerCase().includes(searchText.toLowerCase())
+    )
+  );
   return (
     <div className="mt-10">
     
@@ -358,65 +214,52 @@ const Reservation= () => {
         <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg p-6 rounded-2xl w-1200 max-h-[600px] overflow-y-auto pb-10">
           <div className="flex justify-between items-center gap-2">
             <p className="text-xl font-semibold">Reservation Requests</p>
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTextRequest}
-              onChange={handleSearchRequest}
-              className="p-2 border border-gray-300 rounded-md"
-            />
           </div>
-    
-          <div className="table-container">
-          <table className="w-full mt-6">
-        <thead>
-          <tr>
-         
-            <th className="text-left px-5 py-2">Passenger Name</th>
-            <th className="text-left px-5 py-2">PickUp location</th>
-            <th className="text-left px-5 py-2">Destination</th>
-            <th className="text-left px-5 py-2">Time</th>
-            <th className="text-left px-5 py-2">Estimated Distance</th>
-            <th className="text-left px-5 py-2">Estimated Duration</th>
-            <th className="text-left px-5 py-2">Contact</th>
-            <th className="text-left px-5 py-2">Action</th>
-          </tr>
-        </thead>
-        <tbody className="overflow-y-auto max-h-[300px]">
-  {filteredRequests.map((request, index) => (
-    <tr key={request._idId} className={index === 0 ? '' : 'border-none'}>
-      <td className="px-5 py-4"  hidden>{request._id}</td>
-      <td className="px-5 py-4">{request.passengerName}</td>
-      <td className="px-5 py-2">{request.pickupLocation}</td>
-      <td className="px-5 py-2">{request.destination}</td>
-      <td className="px-5 py-2">{request.time}</td>
-      <td className="px-5 py-2">{request.distance}</td>
-      <td className="px-5 py-2">{request.duration}</td>
-      <td className="px-5 py-2">{request.passengerContactNumber}</td>
-      <td className="flex items-center gap-2">
-        {/* Add buttons for accepting or declining */}
-        <button
-          type="button"
-          className="flex items-center text-green-600 px-3 py-2 bg-green-100 rounded-full opacity-70 hover:opacity-100"
-          onClick={() => handleAccept(request._id)}
-        >
-          <CiCirclePlus size={16} className="mr-1" />
-          Accept
-        </button>
-        <button
-          type="button"
-          className="flex items-center text-red-600 px-3 py-2 bg-red-100 rounded-full opacity-70 hover:opacity-100"
-          onClick={() => handleDecline(request._id)}
-        >
-          <MdOutlineCancel size={16} className="mr-1" />
-          Decline
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
 
-    </table>
+          <div className="table-container">
+            <table className="w-full mt-6">
+              <thead>
+                <tr>
+                  <th className="text-left px-5 py-2">Customer ID</th>
+                  <th className="text-left px-5 py-2">Customer Name</th>
+                  <th className="text-left px-5 py-2">From</th>
+                  <th className="text-left px-5 py-2">Destination</th>
+                  <th className="text-left px-5 py-2">Time</th>
+                  <th className="text-left px-5 py-2">Date</th>
+                  <th className="text-left px-5 py-2">Contact Number</th>
+                  <th className="text-left px-5 py-2">Action</th>
+                </tr>
+              </thead>
+              <tbody className="overflow-y-auto max-h-[300px]">
+                {dummyPassengerRequests.map((request, index) => (
+                  <tr key={request.customerId} className={index === 0 ? '' : 'border-none'}>
+                    <td className="px-5 py-4">{request.customerId}</td>
+                    <td className="px-5 py-2">{request.customerName}</td>
+                    <td className="px-5 py-2">{request.from}</td>
+                    <td className="px-5 py-2">{request.destination}</td>
+                    <td className="px-5 py-2">{request.time}</td>
+                    <td className="px-5 py-2">{request.date}</td>
+                    <td className="px-5 py-2">{request.contactNumber}</td>
+                    <td className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="flex items-center text-green-600 px-3 py-2 bg-green-100 rounded-full opacity-70 hover:opacity-100"
+                      >
+                        <CiCirclePlus size={16} className="mr-1" />
+                        Accept
+                      </button>
+                      <button
+                        type="button"
+                        className="flex items-center text-red-600 px-3 py-2 bg-red-100 rounded-full opacity-70 hover:opacity-100"
+                      >
+                        <MdOutlineCancel size={16} className="mr-1" />
+                        Decline
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           
@@ -439,45 +282,84 @@ const Reservation= () => {
 
           <div className="table-container">
             <table className="w-full mt-6">
-            <thead>
-  <tr>
- 
-    <th className="text-left px-5 py-2">Passenger Name</th>
-    <th className="text-left px-5 py-2">PickUp location</th>
-    <th className="text-left px-5 py-2">Destination</th>
-    <th className="text-left px-5 py-2">Time</th>
-    <th className="text-left px-5 py-2">Estimated Distance</th>
-    <th className="text-left px-5 py-2">Estimated Duration</th>
-    <th className="text-left px-5 py-2">Contact</th>
-    <th className="text-left px-5 py-2">Status</th>
-  </tr>
-</thead>
-<tbody className="overflow-y-auto max-h-[300px]">
-{filteredReservations.map((reservation, index) => (
+              <thead>
+                <tr>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('tripId')}
+                  >
+                    Trip ID
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('customerId')}
+                  >
+                    Customer ID
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('name')}
+                  >
+                    Name
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('from')}
+                  >
+                    From
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('destination')}
+                  >
+                    Destination
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('distance')}
+                  >
+                    Distance
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('time')}
+                  >
+                    Time
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('date')}
+                  >
+                    Date
+                  </th>
+                  <th
+                    className="text-left px-5 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => handleSort('status')}
+                  >
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="overflow-y-auto max-h-[300px]">
+                {filteredData.map((reservation, index) => (
                   <tr key={reservation.tripId} className={index === 0 ? '' : 'border-none'}>
-<td className="px-5 py-4"  hidden>{reservation._id}</td>
-<td className="px-5 py-4">{reservation.passengerName}</td>
-<td className="px-5 py-2">{reservation.pickupLocation}</td>
-<td className="px-5 py-2">{reservation.destination}</td>
-<td className="px-5 py-2">{reservation.time}</td>
-<td className="px-5 py-2">{reservation.distance}</td>
-<td className="px-5 py-2">{reservation.duration}</td>
-<td className="px-5 py-2">{reservation.passengerContactNumber}</td>
-<td className="flex items-center gap-2" width={"200px"}>
+                    <td className="px-5 py-4">{reservation.tripId}</td>
+                    <td className="px-5 py-2">{reservation.customerId}</td>
+                    <td className="px-5 py-2">{reservation.name}</td>
+                    <td className="px-5 py-2">{reservation.from}</td>
+                    <td className="px-5 py-2">{reservation.destination}</td>
+                    <td className="px-5 py-2">{reservation.distance}</td>
+                    <td className="px-5 py-2">{reservation.time}</td>
+                    <td className="px-5 py-2">{reservation.date}</td>
+                    <td className="px-5 py-2">
                       {reservation.status === 'Finished' && (
                         <span className="text-green-500 font-bold">● {reservation.status}</span>
                       )}
-                      {reservation.status === 'OnGoing' && (
+                      {reservation.status === 'Ongoing' && (
                         <span className="text-yellow-500 font-bold">● {reservation.status}</span>
                       )}
-                      {reservation.status === 'Requested' && (
-                        <span className="text-gray-300 font-bold">● {reservation.status}</span>
-                      )}
-                      {reservation.status === 'Declined' && (
-                        <span className="text-red-700 font-bold">● {reservation.status}</span>
-                      )}
-                      {reservation.status === 'Canceled' && (
-                        <span className="text-red-700 font-bold">● {reservation.status}</span>
+                      {reservation.status === 'Cancelled' && (
+                        <span className="text-red-500 font-bold">● {reservation.status}</span>
                       )}
                     </td>
                   </tr>
@@ -494,4 +376,3 @@ const Reservation= () => {
 };
 
 export default Reservation;
-

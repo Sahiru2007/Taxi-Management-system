@@ -1,9 +1,9 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React from 'react';
 import { BsCurrencyDollar } from 'react-icons/bs';
 import { GoDot } from 'react-icons/go';
 import { IoIosMore } from 'react-icons/io';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-import { MapContainer, TileLayer, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ChartComponent, SeriesCollectionDirective, SeriesDirective, Inject, Legend, Category, Tooltip, ColumnSeries, DataLabel } from '@syncfusion/ej2-react-charts';
 import { MdOutlineCancel } from "react-icons/md";
@@ -23,12 +23,7 @@ import { GrLocation } from 'react-icons/gr';
 import { CiLocationOn } from "react-icons/ci";
 import { SlCalender } from "react-icons/sl";
 import { CiCirclePlus } from "react-icons/ci";
-import {useJsApiLoader,GoogleMap, Marker, Autocomplete} from '@react-google-maps/api'
-import { FaTaxi } from "react-icons/fa6"
-
-
-
-import { Skeleton } from '@mui/material'
+ 
 const dropdownData = [
   {
     Id: '1',
@@ -47,29 +42,15 @@ const DropDown = ({ currentMode }) => (
     <DropDownListComponent id="time" fields={{ text: 'Time', value: 'Id' }} style={{ border: 'none', color: (currentMode === 'Dark') && 'white' }} value="1" dataSource={dropdownData} popupHeight="220px" popupWidth="120px" />
   </div>
 );
-const libraries = ['places']; 
+
 const AdminDashboard = () => {
-  const [canceledReservationCount, setCanceledReservationCount] = useState([]);
-  const [passengerCount, setPassengerCount] = useState([]);
-  const [reservationCount, setReservationCount] = useState([]);
-  const [todayReservationsCount, setTodayReservationCount] = useState([]);
-  const [driverDetails, setDriverDetails] = useState([])
-  const [totalEarning, setTotalEarning] = useState([]);
-  const [vehicleStats, setVehicleStats] = useState([]);
-  const [topDrivers, setTopDrivers] = useState([]);
-  const [topPassengers, setTopPassengers] = useState([]);
   const { currentColor, currentMode } = useStateContext();
-  const [map, setMap] = useState(/** @type  google.maps.Map */ (null));
-  const google_api = "AIzaSyD20F4BQVuvR6RDNum0VzfHoO0W4u5UTH4"
- 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: google_api,
-    libraries: libraries, // Pass libraries from the constant
-  });
+
   const earningData = [
     {
       icon: <MdOutlineSupervisorAccount />,
-      amount: passengerCount,
+      amount: '39,354',
+      percentage: '-4%',
       title: 'Passengers',
       iconColor: '#03C9D7',
       iconBg: '#E5FAFB',
@@ -77,7 +58,8 @@ const AdminDashboard = () => {
     },
     {
       icon: <SlCalender />,
-      amount: reservationCount,
+      amount: '4,396',
+      percentage: '+23%',
       title: 'Reservations',
       iconBg: 'rgb(255, 244, 229)',
       iconColor: 'rgb(254, 201, 15)',
@@ -85,7 +67,8 @@ const AdminDashboard = () => {
     },
     {
       icon: <MdOutlineCancel />,
-      amount: canceledReservationCount,
+      amount: '423,39',
+      percentage: '+38%',
       title: 'Cancelled Reservations',
       iconColor: 'rgb(228, 106, 118)',
       iconBg: 'rgb(255, 244, 229)',
@@ -93,8 +76,9 @@ const AdminDashboard = () => {
     },
     {
       icon: <CiCirclePlus />,
-      amount: todayReservationsCount,
-      title: "Today's reservations",
+      amount: '39,354',
+      percentage: '-12%',
+      title: 'New Passengers',
       iconColor: 'rgb(0, 194, 146)',
       iconBg: 'rgb(235, 250, 242)',
       pcColor: 'red-600',
@@ -113,17 +97,14 @@ const AdminDashboard = () => {
     },
     // Add other recentTransactions data
   ];
-  const monthToNumber = {
-    Jan: 1,
-    Feb: 2,
-    // ... (add mappings for other months)
-  };
+   const SparklineAreaData = [
+    { x: 1, yval: 2 },
+    { x: 2, yval: 6 },
+    { x: 3, yval: 8 },
+    { x: 4, yval: 5 },
+    { x: 5, yval: 10 },
   
-  const SparklineAreaData = [
-    { x: monthToNumber['Jan'], yval: 100, text: 'January' },
-    { x: monthToNumber['Feb'], yval: 150, text: 'February' },
   ];
-  
   const ecomPieChartData = [
     { x: '2018', y: 18, text: '35%' },
     { x: '2019', y: 18, text: '15%' },
@@ -132,84 +113,41 @@ const AdminDashboard = () => {
   ];
  
 
-  const svgMarker = {
-    path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
-    fillColor: "orange",
-    fillOpacity: 1,
-    strokeWeight: 0,
-    rotation: 0,
-    scale: 2,
+  const weeklyStats = [
+    {
+      icon: <FiStar />,
+      amount: '31',
+      title: 'Johnathan Doe',
+      iconBg: '#00C292',
+      pcColor: 'green-600',
+    },
+    {
+      icon: <FiStar />,
+      amount: '31',
+      title: 'Johnathan Doe',
+      iconBg: 'yellow-600',
+      pcColor: 'yellow-600',
+    },
+    {
+      icon: <FiStar />,
+      amount: '31',
+      title: 'Johnathan Doe',
+      iconBg: 'red-600',
+      pcColor: 'red-600',
+    },
+    // Add other weeklyStats data
+  ];
 
- };
-  useEffect(() => { 
+  // Add other dummy data if needed
 
-      try {
-
-        fetch(`http://localhost:8080/api/adminDashboard`)
-          .then(async (response) => {
-            if (!response.ok) {
-              throw new Error(`Request failed with status ${response.status}`);
-            }
-    
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-              throw new Error('Invalid response format');
-            }
-    
-            const dashboardData = await response.json();
-          setTotalEarning(dashboardData.totalEarning)
-          setReservationCount(dashboardData.reservationCount)
-          setCanceledReservationCount(dashboardData.cancelledReservationsCount)
-          setPassengerCount(dashboardData.passengerCount)
-          setTodayReservationCount(dashboardData.todayReservationsCount)
-          setTopDrivers(dashboardData.topDrivers)
-          setTopPassengers(dashboardData.topPassengers)
-          setVehicleStats(dashboardData.vehicleTypeStats)
-         
-          })
-          .catch(error => {
-            console.error('Error fetching requests:', error.message);
-          });
-      } catch (parseError) {
-        console.error('Error parsing user data:', parseError);
-      }
-       // Fetch driver details from the backend
-     const fetchDriverDetails = async () => {
-    
-      try {
-        const response = await fetch('http://localhost:8080/api/adminDashboard/getDriverDetails');
-        const data = await response.json();
-
-        
-        console.log(data)
-        setDriverDetails(data);
-      } catch (error) {
-        console.error('Error fetching and filtering driver details:', error.message);
-      }
-    };
-     fetchDriverDetails();
-    
-   }, 
-   []);
-   const vehicleStatsData = vehicleStats.map((item) => ({
-    x: item.vehicleType,
-    y: item.count,
-    text: `${item.percentage.toFixed(2)}%`,
-  }));
-   if (!isLoaded) {
-    return (
-      // Your loading spinner or placeholder JSX here
-      <Skeleton  />
-    );
-  } 
   return (
-    <div className="mt-10">
+    <div className="mt-24">
       <div className="flex flex-wrap lg:flex-nowrap justify-center ">
         <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl w-full lg:w-80 p-8 pt-9 m-3">
           <div className="flex justify-between items-center">
             <div>
               <p className="font-bold text-gray-400">Earnings</p>
-              <p className="text-2xl">Rs. {totalEarning}</p>
+              <p className="text-2xl">$63,448.78</p>
             </div>
             <button
               type="button"
@@ -250,41 +188,80 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      
       <div className="flex gap-10 flex-wrap justify-center">
-       <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl  w-1200">
+        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-780">
           <div className="flex justify-between">
-          <GoogleMap
- center={{ lat: 7.2906, lng: 80.6337 }}
-  zoom={13}
-  mapContainerStyle={{ width: '100%', height: '50vh', borderRadius: '20px' }}
-  options={{
-    streetViewControl: false,
-    fullscreenControl: false,
-  }}
-  onLoad={(map) => setMap(map)}
->
-  {driverDetails.map((driver) => (
-    <Marker
-    key={driver.DriverID}
-    position={{ lat: driver.latitude, lng: driver.longitude }}
-   icon={svgMarker}
-   label={{ color: 'Black', fontWeight: 'bold', fontSize: '14px', marginBottom:'10px', text: driver.fullName} }
-
-    >
-      <div style={{ background: 'white', padding: '5px', borderRadius: '5px', fontWeight: 'bold' }}>
-        {driver.fullName}
-      </div>
-    </Marker>
-  
-  ))}
-</GoogleMap>
+            <MapContainer center={[7.2906, 80.6337]} zoom={13} style={{ width: "100%", height: "48vh" }}>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <Marker position={[7.2906, 80.6337]}>
+                <Popup>A pretty CSS popup.<br />Easily customizable.</Popup>
+              </Marker>
+            </MapContainer>
           </div>
         </div>
 
-      
+        <div>
+          <div
+            className=" rounded-2xl md:w-400 p-4 m-3"
+            style={{ backgroundColor: currentColor }}
+          >
+            <div className="flex justify-between items-center ">
+              <p className="font-semibold text-white text-2xl">Earnings</p>
+            </div>
+            <div className="mt-4">
+              <SparkLine currentColor={currentColor} id="column-sparkLine" height="100px" type="Column" data={SparklineAreaData} width="320" color="rgb(242, 252, 253)" />
+            </div>
+          </div>
+
+          <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg rounded-2xl md:w-400 p-8 m-3 flex justify-center items-center gap-10">
+            <div>
+              <p className="text-2xl font-semibold ">$43,246</p>
+              <p className="text-gray-400">Yearly sales</p>
+            </div>
+            <div className="w-40">
+              <Pie id="pie-chart" data={ecomPieChartData} legendVisiblity={false} height="160px" />
+            </div>
+          </div>
+        </div>
       </div>
 
+      <div className="flex gap-10 m-4 flex-wrap justify-center">
+        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg p-6 rounded-2xl w-1200">
+          <div className="flex justify-between items-center gap-2">
+            <p className="text-xl font-semibold">Recent Feedbacks</p>
+            <DropDown currentMode={currentMode} />
+          </div>
+          <table className="w-full mt-6">
+            <thead>
+              <tr>
+                <th className="text-left">User</th>
+                <th className="text-left">Feedback</th>
+                <th className="text-left">Rating</th>
+                <th className="text-left">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* {recentFeedbacks.map((feedback) => (
+                <tr key={feedback.id} className="border-b border-gray-200">
+                  <td>{feedback.user}</td>
+                  <td>{feedback.feedbackText}</td>
+                  <td>{feedback.rating}</td>
+                  <td>{feedback.date}</td>
+                </tr>
+              ))} */}
+            </tbody>
+          </table>
+          <div className="flex justify-between items-center mt-5 border-t-1 border-color">
+            <div className="mt-3">
+              <Button color="white" bgColor={currentColor} text="View all Feedbacks" borderRadius="10px" />
+            </div>
+            {/* <p className="text-gray-400 text-sm">{recentFeedbacks.length} Recent Feedbacks</p> */}
+          </div>
+        </div>
+      </div>
 
       <div className="flex flex-wrap justify-center">
         <div className="md:w-400 bg-white dark:text-gray-200 dark:bg-secondary-dark-bg rounded-2xl p-6 m-3">
@@ -295,23 +272,22 @@ const AdminDashboard = () => {
             </button>
           </div>
           <div className="mt-10 ">
-          {topDrivers.map((driver) => (
-              <div key={driver._id} className="flex justify-between mt-4 w-full">
+            {weeklyStats.map((item) => (
+              <div key={item.title} className="flex justify-between mt-4 w-full">
                 <div className="flex gap-4">
                   <button
                     type="button"
-                    style={{ background: "#00C292"}}
+                    style={{ background: item.iconBg }}
                     className="text-2xl hover:drop-shadow-xl text-white rounded-full p-3"
                   >
-                 <FiStar />
+                    {item.icon}
                   </button>
                   <div>
-                  <p className="text-md font-semibold">{driver.fullName.split(' ')[0]}</p>
-
-                    <p className="text-sm text-gray-400"></p>
+                    <p className="text-md font-semibold">{item.title}</p>
+                    <p className="text-sm text-gray-400">{item.desc}</p>
                   </div>
                 </div>
-                <p className="green-600">{driver.averageRating}</p>
+                <p className="green-600">{item.amount}</p>
               </div>
             ))}
           </div>
@@ -324,22 +300,22 @@ const AdminDashboard = () => {
             </button>
           </div>
           <div className="mt-10 ">
-          {topPassengers.map((passenger) => (
-              <div key={passenger._id} className="flex justify-between mt-4 w-full">
+            {weeklyStats.map((item) => (
+              <div key={item.title} className="flex justify-between mt-4 w-full">
                 <div className="flex gap-4">
                   <button
                     type="button"
-                    style={{background: "#00C292"}}
+                    style={{ background: item.iconBg }}
                     className="text-2xl hover:drop-shadow-xl text-white rounded-full p-3"
                   >
-                        <FiStar />
+                    {item.icon}
                   </button>
                   <div>
-                    <p className="text-md font-semibold">{passenger.fullName.split(' ')[0]}</p>
-                    
+                    <p className="text-md font-semibold">{item.title}</p>
+                    <p className="text-sm text-gray-400">{item.desc}</p>
                   </div>
                 </div>
-                <p className="green-600">{passenger.reservationCount}</p>
+                <p className="green-600">{item.amount}</p>
               </div>
             ))}
           </div>
@@ -349,7 +325,7 @@ const AdminDashboard = () => {
             <p className="text-gray-400">Popular vehicle Types</p>
           </div>
           <div className="w-100">
-          <Pie id="vehicle-chart" data={vehicleStatsData} legendVisiblity={false} height="250px" />
+            <Pie id="vehicle-chart" data={ecomPieChartData} legendVisiblity={false} height="250px" />
           </div>
         </div>
       </div>

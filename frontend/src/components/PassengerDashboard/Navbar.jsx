@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { AiOutlineMenu } from 'react-icons/ai';
 import { FiShoppingCart } from 'react-icons/fi';
 import { BsChatLeft } from 'react-icons/bs';
@@ -9,7 +9,7 @@ import { TooltipComponent } from '@syncfusion/ej2-react-popups';
 import avatar from '../../data/avatar.jpg';
 import { Notification, UserProfile } from '.';
 import { useStateContext } from '../../contexts/ContextProvider';
-import { useUserType } from '../../UserTypeContext'; 
+
 const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
   <TooltipComponent content={title} position="BottomCenter">
     <button
@@ -22,26 +22,15 @@ const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
         style={{ background: dotColor }}
         className="absolute inline-flex rounded-full h-2 w-2 right-2 top-2"
       />
-      {icon}
+    {icon}
     </button>
   </TooltipComponent>
 );
 
 const Navbar = () => {
   const { currentColor, activeMenu, setActiveMenu, handleClick, isClicked, setScreenSize, screenSize } = useStateContext();
-  const [userStatus, setUserStatus] = useState('Available');
-  const [userData, setUserData] = useState(null);
-  const { setUserTypeContext } = useUserType();
-  useEffect(() => {
-  
-    // Retrieve user data from local storage
-    const storedUserData = localStorage.getItem('userData');
 
-    // Parse the stored data as JSON
-    if (storedUserData) {
-      const parsedUserData = JSON.parse(storedUserData);
-      setUserData(parsedUserData);
-    }
+  useEffect(() => {
     const handleResize = () => setScreenSize(window.innerWidth);
 
     window.addEventListener('resize', handleResize);
@@ -51,25 +40,22 @@ const Navbar = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  if (!userData) {
-    // User data is still loading or not available
-    return <div>Loading...</div>;
-  }
-  const handleActiveMenu = () => setActiveMenu(!activeMenu);
+  useEffect(() => {
+    if (screenSize <= 900) {
+      setActiveMenu(false);
+    } else {
+      setActiveMenu(true);
+    }
+  }, [screenSize]);
 
+  const handleActiveMenu = () => setActiveMenu(!activeMenu);
 
   return (
     <div className="flex justify-between p-2 md:ml-6 md:mr-6 relative">
-     
-      <NavButton title="Menu" customFunc={handleActiveMenu} color={currentColor} icon={<AiOutlineMenu />} />
-      
-   
-      <div className="flex">
-    
 
-      <NavButton title="Notification" dotColor="rgb(254, 201, 15)" customFunc={() => handleClick('notification')} color={currentColor} icon={<RiNotification3Line />} />
-   {/* User Status Indicator */}
-  
+      <NavButton title="Menu" customFunc={handleActiveMenu} color={currentColor} icon={<AiOutlineMenu />} />
+      <div className="flex">
+        <NavButton title="Notification" dotColor="rgb(254, 201, 15)" customFunc={() => handleClick('notification')} color={currentColor} icon={<RiNotification3Line />} />
         <TooltipComponent content="Profile" position="BottomCenter">
           <div
             className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
@@ -83,7 +69,7 @@ const Navbar = () => {
             <p>
               <span className="text-gray-400 text-14">Hi,</span>{' '}
               <span className="text-gray-400 font-bold ml-1 text-14">
-              {userData.fullName || 'User'}
+                Michael
               </span>
             </p>
             <MdKeyboardArrowDown className="text-gray-400 text-14" />
@@ -92,11 +78,9 @@ const Navbar = () => {
 
         {isClicked.cart && (<Cart />)}
         {isClicked.chat && (<Chat />)}
-        
         {isClicked.notification && (<Notification />)}
         {isClicked.userProfile && (<UserProfile />)}
       </div>
-      
     </div>
   );
 };
