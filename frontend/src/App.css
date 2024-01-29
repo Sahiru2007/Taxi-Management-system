@@ -12,7 +12,9 @@
     z-index: 10000000;
   }
 }
-
+@media  screen and (max-width:800px) {
+  
+}
 .e-dlg-center-center, .e-quick-popup-wrapper.e-device{
   z-index: 1000000 !important;
 }
