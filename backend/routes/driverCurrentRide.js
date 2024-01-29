@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const twilio = require('twilio');
 
+const { Reservation } = require('../models/reservation');
 
 const accountSid = 'AC15d3e67d0e267fa96f88926a9cca49fa';
 const authToken = 'c070d6c3cf9142695288c6b85813831e'
