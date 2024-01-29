@@ -4,7 +4,7 @@ const twilio = require("twilio");
 const { Reservation } = require('../models/reservation');
 const { Driver, validate } = require("../models/driver");
 const { Passenger } = require("../models/passenger");
-const SALT_ROUNDS = 10;
+
 
 const accountSid = 'AC9f6f60a644f881af7ebdc04054cfc285';
 const authToken = '9dba35c2502894358a538816a75fc7b1';
