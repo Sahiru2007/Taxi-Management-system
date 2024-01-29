@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
 import Home from './pages/home';
-import Signup from './pages/signup';
 import Login from './pages/login';
 import UserType from './pages/userType';
 import DriverSignUp from './pages/driverSignup';
