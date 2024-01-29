@@ -16,7 +16,9 @@
 .e-dlg-center-center, .e-quick-popup-wrapper.e-device{
   z-index: 1000000 !important;
 }
-
+@media  screen and (max-width:800px) {
+  
+}
 ::-webkit-scrollbar {
   width: 6px;
 }
