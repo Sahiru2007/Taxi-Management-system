@@ -4,6 +4,7 @@ import DashboardLayout from './DashboardLayout';
 import Home from './pages/home';
 import Login from './pages/login';
 import UserType from './pages/userType';
+import Signup from './pages/signup';
 import DriverSignUp from './pages/driverSignup';
 import PassengerDashboard from './pages/PassengerDashboard/PassengerDashboard';
 import PassengerDashboardLayout from './PassengerLayout';
